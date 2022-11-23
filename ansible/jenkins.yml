@@ -1,0 +1,33 @@
+---
+
+- hosts: all
+  tasks:
+    - name: Update APT package manager repositories cache
+      become: yes
+      apt:
+        update_cache: yes
+
+    - name: Install Java using Ansible
+      become: yes
+      apt:
+        name: "{{ packages }}"
+        state: present
+      vars:
+        packages:
+           - openjdk-11-jdk
+
+    - name: Ensure the jenkins apt repository key is installed
+      apt_key: url=https://pkg.jenkins.io/debian-stable/jenkins.io.key state=present
+      become: yes
+
+    - name: Ensure the repository is configured
+      apt_repository: repo='deb https://pkg.jenkins.io/debian-stable binary/' state=present
+      become: yes
+
+    - name: Ensure jenkins is installed
+      apt: name=jenkins update_cache=yes
+      become: yes
+
+    - name: Ensure jenkins is running
+      service: name=jenkins state=started
+
